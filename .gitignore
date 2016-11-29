@@ -1,0 +1,8 @@
+run.*
+*/.classpath
+*/target
+.settings
+.DS_Store
+.project
+*.log
+*.log.*
