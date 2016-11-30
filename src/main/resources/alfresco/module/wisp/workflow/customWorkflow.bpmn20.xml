@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn"
+   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+   xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema"
+   expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://alfresco.org">
+
+    <process isExecutable="true" id="customWorkflow" name="Review And Approve workflow">
+		
+		 <extensionElements>
+            <activiti:executionListener event="start" class="org.alfresco.repo.workflow.activiti.listener.ScriptExecutionListener">
+        		<activiti:field name="script">
+                     <activiti:string>
+                       	execution.setVariable('wisp_actualPercent', 0);
+                        execution.setVariable('wisp_actualRejectPercent', 0);
+                        execution.setVariable('wisp_requiredPercent', wisp_requiredApprovePercent);
+						execution.setVariable('wisp_documentType', wisp_documentType);
+						execution.setVariable('wisp_reviewerCount', bpm_assignees.size());
+						execution.setVariable('wisp_documentName', wisp_documentName);
+                     </activiti:string>
+                  </activiti:field>
+            </activiti:executionListener>
+        </extensionElements>
+		
+        <startEvent id="start"
+            activiti:formKey="wisp:submitParallelReviewTask" />
+
+        <sequenceFlow id='flow1' 
+            sourceRef='start'
+            targetRef='reviewTask' />
+
+        <userTask id="reviewTask" name="Review Task"
+            activiti:formKey="wisp:activitiReviewTask">
+           <extensionElements>
+		   <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+                  <activiti:field name="script">
+                     <activiti:string>
+                        if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate
+                        if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;
+						var mail = actions.create("mail");
+			            logger.log("Enter the mail functionality");
+						logger.log("####" + reviewAssignee.properties.email);
+						logger.log("Total no of reviewers = " + wisp_reviewerCount);
+						mail.parameters.to=reviewAssignee.properties.email;						
+			            mail.parameters.subject = "Custom Workflow for review ";
+			            mail.parameters.from = "WFHMDCSLA@wellsfargo.com";						
+			            mail.parameters.template = companyhome.childByNamePath("Data Dictionary/Email Templates/wisp/wisp_notification_mail.ftl");
+						mail.parameters.text = "workflow launched";
+						
+						var templateArgs = new Array();
+						templateArgs['documentType'] = task.getVariable('wisp_documentType');
+						templateArgs['documentName'] = task.getVariable('wisp_documentName');
+						var templateModel = new Array();
+						templateModel['args'] = templateArgs; 
+						mail.parameters.template_model = templateModel;
+						logger.log("Exit the mail functionality");
+			            mail.executeAsynchronously(bpm_package);
+                     </activiti:string>
+                  </activiti:field>
+               </activiti:taskListener>
+			   
+               <activiti:taskListener event="complete" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+                  <activiti:field name="script">
+                     <activiti:string>
+                       	execution.setVariable('wisp_reviewOutcome', task.getVariable('wisp_reviewOutcome'));
+						logger.log("####" + task.getVariable('wisp_reviewOutcome'));
+						if(task.getVariable('wisp_reviewOutcome') == 'Approve') {
+                            execution.setVariable('wisp_actualPercent', 51);
+                        } else {
+                            execution.setVariable('wisp_actualRejectPercent', 51);
+                        }
+                     </activiti:string>
+                  </activiti:field>
+               </activiti:taskListener>
+           </extensionElements>
+            <humanPerformer>
+                <resourceAssignmentExpression>
+                    <formalExpression>${reviewAssignee.properties.userName}</formalExpression>
+                </resourceAssignmentExpression>
+            </humanPerformer>
+			<!-- For each assignee, task is created -->
+           <multiInstanceLoopCharacteristics isSequential="false">
+              <loopDataInputRef>bpm_assignees</loopDataInputRef>
+              <inputDataItem name="reviewAssignee" />
+              <completionCondition>${wisp_actualPercent >= wisp_requiredApprovePercent || wisp_requiredApprovePercent > (100 - wisp_actualRejectPercent)}</completionCondition>
+           </multiInstanceLoopCharacteristics>
+        </userTask>
+
+        <sequenceFlow id='flow2' 
+        sourceRef='reviewTask'
+            targetRef='reviewDecision' />
+
+        <exclusiveGateway  id="reviewDecision" name="Review Decision" /> 
+
+        <sequenceFlow id='flow3' sourceRef='reviewDecision' targetRef='approved' >
+            <conditionExpression xsi:type="tFormalExpression">${wisp_actualPercent >= wisp_requiredApprovePercent}</conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow id='flow4' 
+        sourceRef='reviewDecision'
+            targetRef='rejected' />
+
+       <userTask id="approved" name="Document Approved"
+            activiti:formKey="wisp:approvedTask" >
+            <documentation>
+                The document was reviewed and approved.
+            </documentation>
+           <extensionElements>
+               <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+                  <activiti:field name="script">
+                     <activiti:string>
+                        if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate
+                        if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;
+						var mail = actions.create("mail");
+			            mail.parameters.to =initiator.properties.email;
+			            mail.parameters.subject = "Custom Workflow approved ";
+			            mail.parameters.from = "WFHMDCSLA@wellsfargo.com";
+						mail.parameters.template = companyhome.childByNamePath("Data Dictionary/Email Templates/wisp/wisp_approval_mail.ftl");
+						mail.parameters.text = "workflow launched";		
+
+						var templateArgs = new Array();
+						templateArgs['documentType'] = task.getVariable('wisp_documentType');
+						templateArgs['documentName'] = task.getVariable('wisp_documentName');
+						var templateModel = new Array();
+						templateModel['args'] = templateArgs; 
+						mail.parameters.template_model = templateModel;
+						
+			            mail.executeAsynchronously(bpm_package);
+                     </activiti:string>
+                  </activiti:field>
+               </activiti:taskListener>
+            </extensionElements> 
+            <humanPerformer>
+                <resourceAssignmentExpression>
+                    <formalExpression>${initiator.exists() ? initiator.properties.userName : 'admin'}</formalExpression>
+                </resourceAssignmentExpression>
+            </humanPerformer>
+        </userTask>
+        
+        <userTask id="rejected" name="Document Rejected"
+            activiti:formKey="wisp:rejectedTask" >
+            <documentation>
+                The document was reviewed and rejected.
+            </documentation>
+            <extensionElements>
+               <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+                  <activiti:field name="script">
+                     <activiti:string>
+                        if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate
+                        if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;
+						var mail = actions.create("mail");
+			            mail.parameters.to = initiator.properties.email;
+			            mail.parameters.subject = "Custom Workflow Rejected ";
+			            mail.parameters.from = "WFHMDCSLA@wellsfargo.com";						
+			            mail.parameters.template = companyhome.childByNamePath("Data Dictionary/Email Templates/wisp/wisp_reject_mail.ftl");
+						mail.parameters.text = "workflow rejected";
+						
+						var templateArgs = new Array();
+						templateArgs['documentType'] = task.getVariable('wisp_documentType');
+						templateArgs['documentName'] = task.getVariable('wisp_documentName');
+						var templateModel = new Array();
+						templateModel['args'] = templateArgs; 
+						mail.parameters.template_model = templateModel;
+						
+			            mail.executeAsynchronously(bpm_package);
+                     </activiti:string>
+                  </activiti:field>
+               </activiti:taskListener>
+            </extensionElements>
+            <humanPerformer>
+                <resourceAssignmentExpression>
+                    <formalExpression>${initiator.exists() ? initiator.properties.userName : 'admin'}</formalExpression>
+                </resourceAssignmentExpression>
+            </humanPerformer>
+        </userTask>
+
+        <sequenceFlow id='flow5' sourceRef='approved'
+            targetRef='end' />
+
+        <sequenceFlow id='flow6' sourceRef='rejected'
+            targetRef='end' />
+
+        <endEvent id="end" />
+
+    </process>
+    
+   <!-- Graphical representaion of diagram -->
+   <bpmndi:BPMNDiagram id="BPMNDiagram_customWorkflow">
+      <bpmndi:BPMNPlane bpmnElement="customWorkflow"
+         id="BPMNPlane_customWorkflow">
+         <bpmndi:BPMNShape bpmnElement="start"
+            id="BPMNShape_start">
+            <omgdc:Bounds height="35" width="35" x="30" y="200"></omgdc:Bounds>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="reviewTask"
+            id="BPMNShape_reviewTask">
+            <omgdc:Bounds height="55" width="105" x="125"
+               y="190"></omgdc:Bounds>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="reviewDecision"
+            id="BPMNShape_reviewDecision">
+            <omgdc:Bounds height="40" width="40" x="290" y="197"></omgdc:Bounds>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="approved"
+            id="BPMNShape_approved">
+            <omgdc:Bounds height="55" width="105" x="390"
+               y="97"></omgdc:Bounds>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="rejected"
+            id="BPMNShape_rejected">
+            <omgdc:Bounds height="55" width="105" x="390"
+               y="297"></omgdc:Bounds>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+            <omgdc:Bounds height="35" width="35" x="555" y="307"></omgdc:Bounds>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+            <omgdi:waypoint x="65" y="217"></omgdi:waypoint>
+            <omgdi:waypoint x="125" y="217"></omgdi:waypoint>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+            <omgdi:waypoint x="230" y="217"></omgdi:waypoint>
+            <omgdi:waypoint x="290" y="217"></omgdi:waypoint>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+            <omgdi:waypoint x="310" y="197"></omgdi:waypoint>
+            <omgdi:waypoint x="310" y="124"></omgdi:waypoint>
+            <omgdi:waypoint x="390" y="124"></omgdi:waypoint>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+            <omgdi:waypoint x="310" y="237"></omgdi:waypoint>
+            <omgdi:waypoint x="310" y="324"></omgdi:waypoint>
+            <omgdi:waypoint x="390" y="324"></omgdi:waypoint>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+            <omgdi:waypoint x="495" y="124"></omgdi:waypoint>
+            <omgdi:waypoint x="572" y="124"></omgdi:waypoint>
+            <omgdi:waypoint x="572" y="307"></omgdi:waypoint>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+            <omgdi:waypoint x="495" y="324"></omgdi:waypoint>
+            <omgdi:waypoint x="555" y="324"></omgdi:waypoint>
+         </bpmndi:BPMNEdge>
+      </bpmndi:BPMNPlane>
+   </bpmndi:BPMNDiagram>
+
+</definitions>

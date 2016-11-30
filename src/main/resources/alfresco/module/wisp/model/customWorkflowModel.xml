@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model name="wisp:workflowmodel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+   <imports>
+      <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+      <import uri="http://www.alfresco.org/model/bpm/1.0" prefix="bpm"/>
+	  <import uri="http://www.alfresco.org/model/workflow/1.0" prefix="wf" />
+   </imports>
+
+   <namespaces>
+      <namespace uri="http://www.alfresco.org/model/wisp/1.0" prefix="wisp"/>
+   </namespaces>
+   
+   <types>
+	
+	  
+	  <!--  Submit review to multiple people (explicit list) -->
+       <type name="wisp:submitParallelReviewTask">
+         <parent>bpm:startTask</parent>
+		 <properties>
+            <property name="wisp:requiredApprovePercent">
+                <type>d:int</type>
+                <mandatory>true</mandatory>
+                <default>50</default>
+                <constraints>
+                    <constraint type="MINMAX">
+                        <parameter name="minValue"><value>1</value></parameter>
+                        <parameter name="maxValue"><value>100</value></parameter>
+                    </constraint>
+                </constraints>
+            </property>
+			<property name="wisp:documentType">
+                <type>d:text</type>
+            </property>
+			<property name="wisp:documentName">
+                <type>d:text</type>
+            </property>	
+         </properties>
+		  <mandatory-aspects>
+            <aspect>bpm:assignees</aspect>
+         </mandatory-aspects>        
+      </type>      
+		
+		<type name="wisp:activitiReviewTask">
+            <parent>bpm:activitiOutcomeTask</parent>
+            <properties>
+                <property name="wisp:reviewOutcome">
+                    <type>d:text</type>
+                    <default>Reject</default>
+                    <constraints>
+                        <constraint name="wisp:reviewOutcomeOptions" type="LIST">
+                            <parameter name="allowedValues">
+                                <list>
+                                    <value>Approve</value>
+                                    <value>Reject</value>
+                                </list>
+                            </parameter>
+                        </constraint>
+                    </constraints>
+                </property>
+            </properties>
+            <overrides>
+                <property name="bpm:packageItemActionGroup">
+                    <default>edit_package_item_actions</default>
+                </property>
+                <property name="bpm:outcomePropertyName">
+                    <default>{http://www.alfresco.org/model/wisp/1.0}reviewOutcome</default>
+                </property>
+            </overrides>
+        </type>
+		
+		<type name="wisp:approvedTask">
+         <parent>bpm:workflowTask</parent>
+      </type>
+
+      <type name="wisp:rejectedTask">
+         <parent>bpm:workflowTask</parent>
+      </type>
+	
+	</types>
+	</model>
