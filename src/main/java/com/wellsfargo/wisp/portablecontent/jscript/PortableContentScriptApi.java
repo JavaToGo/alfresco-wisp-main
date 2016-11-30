@@ -10,6 +10,15 @@ public class PortableContentScriptApi extends BaseScopableProcessorExtension {
 	PortableContentService portableContentService;
 	ServiceRegistry serviceRegistry;
 
+	public void setPortableContentService(
+			PortableContentService portableContentService) {
+		this.portableContentService = portableContentService;
+	}
+
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
+	}
+
 	public String makePortable(ScriptNode node) {
 		return portableContentService.makePortable(node.getNodeRef());
 	}
