@@ -1,0 +1,8 @@
+<webscript>
+<shortname>upload image</shortname> 
+<description>upload image</description> 
+<url>/wisp/uploadImage</url> 
+<format default="xml" /> 
+<authentication>user</authentication> 
+ <requiredAuthentication>false</requiredAuthentication> 
+ </webscript>

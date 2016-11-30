@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Workflow history</shortname> 
+  <description>Workflow history</description> 
+  <url>/wisp/workflowHistory</url> 
+  <authentication>user</authentication> 
+  <format default="xml" /> 
+  </webscript>

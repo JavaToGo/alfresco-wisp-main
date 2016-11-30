@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>seacrh User</shortname> 
+  <description>search user</description> 
+  <url>/wisp/searchUserPost</url> 
+  <format default="xml" /> 
+  <authentication>user</authentication> 
+  <requiredAuthentication>false</requiredAuthentication> 
+  </webscript>

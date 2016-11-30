@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>get workflow</shortname> 
+  <description>get workflow by name</description> 
+  <url>/wisp/getWorkflowPost</url> 
+  <authentication>user</authentication> 
+  <format default="xml" /> 
+  </webscript>

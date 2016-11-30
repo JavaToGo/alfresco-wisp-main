@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Version History</shortname> 
+  <description>version history document</description> 
+  <url>/wisp/checkinDocument</url> 
+  <authentication>user</authentication> 
+  <format default="xml" /> 
+ </webscript>

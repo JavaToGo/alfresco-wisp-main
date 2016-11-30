@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Delete Workflow</shortname> 
+  <description>Start Workflow</description> 
+  <url>/wisp/deleteWorkflow</url> 
+  <format default="xml" /> 
+  <authentication>user</authentication> 
+  </webscript>

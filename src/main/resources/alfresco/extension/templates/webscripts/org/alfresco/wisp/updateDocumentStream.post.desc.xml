@@ -1,0 +1,7 @@
+<webscript>
+<shortname>Update Document Stream</shortname>
+<description>Update Document Stream</description>
+<url>/wisp/updateDocumentStream</url>
+<authentication>user</authentication>
+<format default="xml"/>
+</webscript>

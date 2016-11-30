@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>retrieve document</shortname> 
+  <description>retrieve document</description> 
+  <url>/wisp/retrieveDocument</url> 
+  <format default="xml" /> 
+  <authentication>user</authentication> 
+</webscript>

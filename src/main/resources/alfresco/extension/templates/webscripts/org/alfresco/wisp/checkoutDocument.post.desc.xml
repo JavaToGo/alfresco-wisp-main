@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>checkOut</shortname> 
+  <description>Check out document</description> 
+  <url>/wisp/checkoutDocument</url> 
+  <authentication>user</authentication> 
+  <format default="xml" /> 
+  </webscript>

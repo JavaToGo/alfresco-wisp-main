@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Start Workflow</shortname> 
+  <description>Start Workflow</description> 
+  <url>/wisp/startWorkflowPost</url> 
+  <format default="xml" /> 
+  <authentication>user</authentication> 
+  </webscript>

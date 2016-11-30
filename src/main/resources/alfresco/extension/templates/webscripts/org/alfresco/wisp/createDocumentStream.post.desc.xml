@@ -1,0 +1,7 @@
+<webscript>
+<shortname>Create the document content</shortname>
+<description>Create the document content</description>
+<url>/wisp/createDocumentStream</url>
+<format default="xml"/>
+<authentication>user</authentication>
+</webscript>

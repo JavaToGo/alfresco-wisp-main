@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>retrieve document by version</shortname> 
+  <description>retrieve document by version</description> 
+  <url>/wisp/retrieveDocumentFromVersion</url> 
+  <format default="xml" /> 
+  <authentication>user</authentication> 
+  </webscript>

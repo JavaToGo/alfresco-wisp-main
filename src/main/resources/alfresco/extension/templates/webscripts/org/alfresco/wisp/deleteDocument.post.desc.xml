@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>delete document</shortname> 
+  <description>delete document</description> 
+  <url>/wisp/deleteDocumentPost</url> 
+  <format default="xml" /> 
+  <authentication>user</authentication> 
+  <requiredAuthentication>false</requiredAuthentication> 
+ </webscript>

@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Complete Workflow</shortname> 
+  <description>Complete Workflow</description> 
+  <url>/wisp/completeWorkflowJava</url> 
+  <format default="xml" /> 
+  <authentication>user</authentication> 
+  </webscript>

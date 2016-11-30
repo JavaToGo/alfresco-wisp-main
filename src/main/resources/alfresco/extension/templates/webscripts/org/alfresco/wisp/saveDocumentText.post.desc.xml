@@ -1,0 +1,7 @@
+<webscript>
+<shortname>save the document content</shortname>
+<description>save the document content</description>
+<url>/sample/saveDocumentText</url>
+<format default="xml"/>
+<authentication>user</authentication>
+</webscript>

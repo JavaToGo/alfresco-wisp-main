@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>get latest Version</shortname> 
+  <description>get latest Version</description> 
+  <url>/wisp/getLatestVersion</url> 
+  <format default="xml" /> 
+  <authentication>user</authentication> 
+  <requiredAuthentication>false</requiredAuthentication> 
+  </webscript>

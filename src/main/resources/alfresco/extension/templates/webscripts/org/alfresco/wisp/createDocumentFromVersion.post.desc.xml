@@ -1,0 +1,7 @@
+<webscript>
+<shortname>Create the document from version</shortname>
+<description>Create the document from version</description>
+<url>/wisp/createDocumentFromVersion</url>
+<format default="xml"/>
+<authentication>user</authentication>
+</webscript>

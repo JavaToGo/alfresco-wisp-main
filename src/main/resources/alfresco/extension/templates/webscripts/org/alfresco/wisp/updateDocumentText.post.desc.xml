@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Update Document</shortname> 
+  <description>Update Document</description> 
+  <url>/wisp/updateDocumentText</url> 
+  <authentication>user</authentication> 
+  <format default="xml" /> 
+  </webscript>

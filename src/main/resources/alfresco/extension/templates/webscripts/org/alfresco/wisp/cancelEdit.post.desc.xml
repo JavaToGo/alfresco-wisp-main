@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>cancelEdit document</shortname> 
+  <description>cancelEdit document</description> 
+  <url>/wisp/cancelEditPost</url> 
+  <format default="xml" /> 
+  <authentication>user</authentication> 
+  <requiredAuthentication>false</requiredAuthentication> 
+ </webscript>
