@@ -18,22 +18,34 @@
 -->
 <beans>
     
-    <!-- A simple class that is initialized by Spring -->
-    <bean id="com.wellsfargo.wisp.exampleBean" class="com.wellsfargo.wisp.platformsample.Demo" init-method="init" />
-
-    <!-- A simple module component that will be executed once.
-         Note. this module component will only be executed once, and then there will be an entry for it in the Repo DB.
-         So doing for example $ mvn clean install alfresco:run twice will only execute this component the first time.
-         You need to remove /alf_data_dev for it to be executed again. -->
-    <bean id="com.wellsfargo.wisp.exampleComponent" class="com.wellsfargo.wisp.platformsample.DemoComponent" parent="module.baseComponent" >
-        <property name="moduleId" value="wisp" />  <!-- See module.properties -->
-        <property name="name" value="exampleComponent" />
-        <property name="description" value="A demonstration component" />
-        <property name="sinceVersion" value="1.0" />
-        <property name="appliesFromVersion" value="0.99" /> <!-- 1.0 would not work here when using SNAPSHOT version in project  -->
-        <property name="nodeService" ref="NodeService" />
-        <property name="nodeLocatorService" ref="nodeLocatorService" />
+    <bean id="${artifactId}.portableContentPolicy" class="com.wellsfargo.wisp.portablecontent.policy.PortableContentPolicy"  init-method="initialise" depends-on="${project.artifactId}.dictionaryBootstrap">
+    	<property name="portableContentComponent" ref="${artifactId}.portableContentComponent" />
+         <property name="policyComponent">
+            <ref bean="policyComponent"/>
+        </property>
     </bean>
-
-    
+	<bean id="${artifactId}.portableContentComponent"
+		class="com.wellsfargo.wisp.portablecontent.impl.PortableContentComponent">
+		<property name="serviceRegistry">
+			<ref bean="ServiceRegistry" />
+		</property>
+	</bean>
+	<bean id="${artifactId}.portableContentService"
+		class="com.wellsfargo.wisp.portablecontent.impl.PortableContentServiceImpl">
+		<property name="portableContentComponent">
+			<ref bean="${artifactId}.portableContentComponent" />
+		</property>
+	</bean>
+	<bean id="${artifactId}.portableContentScriptApi" parent="baseJavaScriptExtension"
+		class="com.wellsfargo.wisp.portablecontent.jscript.PortableContentScriptApi">
+		<property name="extensionName">
+			<value>portableContent</value>
+		</property>
+		<property name="serviceRegistry">
+			<ref bean="ServiceRegistry" />
+		</property>
+		<property name="portableContentService">
+			<ref bean="${artifactId}.portableContentService" />
+		</property>
+	</bean>    
 </beans>

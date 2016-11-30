@@ -17,10 +17,6 @@
 	limitations under the License.
 -->
 <beans>
-	<bean id="webscript.alfresco.tutorials.helloworld.get"
-		  class="com.wellsfargo.wisp.platformsample.HelloWorldWebScript"
-		  parent="webscript">
-	</bean>
     <import resource="classpath:alfresco/module/${project.artifactId}/context/wisp/completeWorkflowJava-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/wisp/deleteDocumentPost-context.xml" />
 	<import resource="classpath:alfresco/module/${project.artifactId}/context/wisp/uploadImage-context.xml" />

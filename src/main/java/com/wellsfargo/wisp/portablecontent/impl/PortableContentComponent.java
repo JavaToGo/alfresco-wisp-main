@@ -3,6 +3,7 @@ package com.wellsfargo.wisp.portablecontent.impl;
 import java.io.Serializable;
 import java.util.List;
 
+import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
@@ -16,6 +17,12 @@ import com.wellsfargo.wisp.portablecontent.PortableContentConstants;
 public class PortableContentComponent {
 	private NodeService nodeService;
 	private SearchService searchService;
+
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.nodeService = serviceRegistry.getNodeService();
+		this.searchService = serviceRegistry.getSearchService();
+	}
+
 	public class CannotUpdateContentIdException extends RuntimeException {
 		private static final long serialVersionUID = 9095527425674308972L;
 
@@ -23,6 +30,7 @@ public class PortableContentComponent {
 			super(String.format("Cannot Overwrite Content Id to %s on %s", contentId, nodeRef.toString()));
 		}
 	}
+	
 	public class CannotFindByContentId extends RuntimeException {
 		private static final long serialVersionUID = 8520517667365439937L;
 

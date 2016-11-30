@@ -19,6 +19,15 @@ public class PortableContentPolicy implements OnAddAspectPolicy {
 	private PolicyComponent policyComponent;
 	private PortableContentComponent portableContentComponent;
 
+	public void setPolicyComponent(PolicyComponent policyComponent) {
+		this.policyComponent = policyComponent;
+	}
+
+	public void setPortableContentComponent(
+			PortableContentComponent portableContentComponent) {
+		this.portableContentComponent = portableContentComponent;
+	}
+
 	public void initialise() {
 
 		this.policyComponent.bindClassBehaviour(
