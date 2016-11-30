@@ -7,6 +7,11 @@ import com.wellsfargo.wisp.portablecontent.PortableContentService;
 public class PortableContentServiceImpl implements PortableContentService {
 	PortableContentComponent portableContentComponent;
 
+	public void setPortableContentComponent(
+			PortableContentComponent portableContentComponent) {
+		this.portableContentComponent = portableContentComponent;
+	}
+
 	@Override
 	public String makePortable(NodeRef nodeRef) {
 		portableContentComponent.ensureContentId(nodeRef);
