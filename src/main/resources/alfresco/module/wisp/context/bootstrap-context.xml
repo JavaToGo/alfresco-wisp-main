@@ -8,11 +8,10 @@
 		 workflow, and loading custom content models.  -->
 
     <!-- Registration of new models -->
-    <bean id="com.wellsfargo.wisp.dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
+    <bean id="${project.artifactId}.dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
         <property name="models">
             <list>
                 <value>alfresco/module/${project.artifactId}/model/portable-content-model.xml</value>
-                <value>alfresco/module/${project.artifactId}/model/customWorkflowModel.xml</value>
             </list>
         </property>
         <property name="labels">
@@ -23,7 +22,12 @@
         </property>
     </bean>
 
-    <bean id="com.wellsfargo.wisp.sampleprocess.workflowBootstrap" parent="workflowDeployer">
+    <bean id="${project.artifactId}.workflowBootstrap" parent="workflowDeployer">
+        <property name="models">
+            <list>
+                <value>alfresco/module/${project.artifactId}/model/customWorkflowModel.xml</value>
+            </list>
+        </property>
         <property name="workflowDefinitions">
             <list>
                 <props>
