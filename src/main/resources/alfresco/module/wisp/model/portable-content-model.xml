@@ -25,7 +25,41 @@
         Constraints, Types, and Aspects go here...
         -->
 
-
+	<types>
+        <type name="wfpc:wispContent">
+            <title>WISP Content</title>
+            <description>WISP Content</description>
+            <parent>cm:content</parent>
+            <properties>
+                <property name="wfpc:documentName">
+                    <type>d:text</type>
+                    <index enabled="true">
+                        <tokenised>both</tokenised>
+                        <facetable>true</facetable>
+                    </index>
+                </property>
+                <property name="wfpc:documentType">
+                    <type>d:text</type>
+                    <protected>true</protected>
+                    <index enabled="true">
+                        <tokenised>false</tokenised>
+                        <facetable>true</facetable>
+                    </index>
+                </property>
+                <property name="wfpc:timestamp">
+                    <type>d:text</type>
+                    <protected>true</protected>
+                    <index enabled="true">
+                        <tokenised>false</tokenised>
+                        <facetable>true</facetable>
+                    </index>
+                </property>
+            </properties>
+            <mandatory-aspects>
+            	<aspect>wfpc:portableContent</aspect>
+            </mandatory-aspects>
+        </type>
+	</types>
     <aspects>
         <!-- A document can have security classification applied and
              faceted search is specifically enabled for best performance and we change

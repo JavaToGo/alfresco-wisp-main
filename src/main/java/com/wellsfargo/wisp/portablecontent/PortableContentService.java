@@ -7,5 +7,5 @@ public interface PortableContentService {
 	String makePortable(NodeRef nodeRef);
 	NodeRef findByContentId(String contentId);
 	String getContentId(NodeRef nodeRef);
-
+	void makeWispDocument(NodeRef document, String documentType);
 }

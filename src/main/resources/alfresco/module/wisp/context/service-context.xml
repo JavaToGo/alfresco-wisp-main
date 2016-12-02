@@ -24,12 +24,21 @@
             <ref bean="policyComponent"/>
         </property>
     </bean>
-	<bean id="${artifactId}.portableContentComponent"
-		class="com.wellsfargo.wisp.portablecontent.impl.PortableContentComponent">
+
+    <bean id="${artifactId}.wispContentPolicy" class="com.wellsfargo.wisp.portablecontent.policy.WispContentPolicy"  init-method="initialise" depends-on="${project.artifactId}.dictionaryBootstrap">
+    	<property name="portableContentComponent" ref="${artifactId}.portableContentComponent" />
+         <property name="policyComponent">
+            <ref bean="policyComponent"/>
+        </property>
+    </bean>
+   
+	<bean id="${artifactId}.portableContentComponent" class="com.wellsfargo.wisp.portablecontent.impl.PortableContentComponent">
 		<property name="serviceRegistry">
 			<ref bean="ServiceRegistry" />
 		</property>
+		<property name="folderHierarchyHelper" ref="alfresco-consulting-repo-utils.folderHierarchyHelper" />
 	</bean>
+	
 	<bean id="${artifactId}.portableContentService"
 		class="com.wellsfargo.wisp.portablecontent.impl.PortableContentServiceImpl">
 		<property name="portableContentComponent">

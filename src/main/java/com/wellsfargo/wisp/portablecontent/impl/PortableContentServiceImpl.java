@@ -27,4 +27,9 @@ public class PortableContentServiceImpl implements PortableContentService {
 	public String getContentId(NodeRef nodeRef) {
 		return portableContentComponent.getContentId(nodeRef);
 	}
+
+	@Override
+	public void makeWispDocument(NodeRef document, String documentType) {
+		portableContentComponent.makeWispDocument(document, documentType);
+	}
 }

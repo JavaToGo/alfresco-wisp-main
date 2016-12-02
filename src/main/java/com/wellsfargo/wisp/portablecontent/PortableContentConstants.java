@@ -8,4 +8,12 @@ public interface PortableContentConstants {
 
 	public static final QName ASPECT_PORTABLE_CONTENT = QName.createQName(WFPC_MODEL_1_0_URI, "portableContent");
 	public static final QName PROP_CONTENT_ID = QName.createQName(WFPC_MODEL_1_0_URI, "contentId");
+	
+	public static final QName TYPE_WISP_CONTENT = QName.createQName(WFPC_MODEL_1_0_URI, "wispContent");
+	public static final QName PROP_DOCUMENT_NAME = QName.createQName(WFPC_MODEL_1_0_URI, "documentName");
+	public static final QName PROP_DOCUMENT_TYPE = QName.createQName(WFPC_MODEL_1_0_URI, "documentType");
+	public static final QName PROP_TIMESTAMP = QName.createQName(WFPC_MODEL_1_0_URI, "timestamp");
+	
+	public static final String WISP_ROOT_NAME = "WISP";
+	public static final String WISP_PREFIX = "WISP_";
 }
