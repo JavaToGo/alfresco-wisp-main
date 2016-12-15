@@ -28,3 +28,17 @@ This project provides the following functionality
 Use makeWispDocument to turn a document into a WispDocument.  Currently this is not checking the following
 * The documentType (to verify that it is valid)
 * The mimeType (to compare it against the documentType)
+
+
+### From the email
+
+You can use the JS Console to turn any document into a Wisp Content with a documentType.
+
+* This triggers a content policy that moves the document into the proper folder
+* This also adds the following properties
+  * documentName
+  * documentType
+  * Timestamp
+* This does not yet do the following:
+  * Check to make sure the documentType is a valid type
+  * Check to make sure that the mimeType of the document is valid for the documentType
