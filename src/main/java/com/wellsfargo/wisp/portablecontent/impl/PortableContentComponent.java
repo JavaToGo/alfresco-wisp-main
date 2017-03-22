@@ -35,7 +35,7 @@ public class PortableContentComponent extends AbstractLifecycleBean {
 	private NodeRef wispRoot=null;
 	private NodeLocatorService nodeLocatorService;
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-	private Pattern tsPattern = Pattern.compile("\\d\\d\\d\\d\\d\\d\\d\\d");
+	private Pattern tsPattern = Pattern.compile("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d");
 	private FolderHierarchyHelper folderHierarchyHelper;
 
     private static Log logger = LogFactory.getLog(PortableContentComponent.class);
