@@ -14,6 +14,7 @@ import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
@@ -120,6 +121,46 @@ public class PortableContentComponent extends AbstractLifecycleBean {
 		return rs.getNodeRef(0);
 	}
 	
+	private NodeRef getExistingByContentId(String contentId, NodeRef nodeRef) {
+
+		log.info("XXXXXXXXXX  portable content in getExistingByContentId " + contentId + ", " + nodeRef.toString());
+		
+		String sourceNodeRefStr = nodeRef.toString();
+		
+		SearchParameters sp = new SearchParameters();
+		sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+		sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
+		sp.setQueryConsistency(QueryConsistency.TRANSACTIONAL);
+		sp.setQuery(String.format("=%s:'%s'",PortableContentConstants.PROP_CONTENT_ID.toString(),contentId ));
+		
+		ResultSet rs = searchService.query(sp);
+		
+		if (rs.getNodeRefs().isEmpty()) {
+			return null;
+		}
+		
+		if (rs.getNodeRefs().size() > 2) {
+			throw new TooManyFoundByContentId(contentId,rs.getNodeRefs());
+		}
+		
+		
+		if (rs.getNodeRefs().size() == 2) {
+			
+			if(sourceNodeRefStr.equalsIgnoreCase(rs.getNodeRef(0).toString())) {
+				return rs.getNodeRef(1);
+			} else {
+				return rs.getNodeRef(0);
+			}
+		}
+		
+		if(sourceNodeRefStr.equalsIgnoreCase(rs.getNodeRef(0).toString())) {
+			return null;
+		} 
+		
+		
+		return rs.getNodeRef(0);
+	}
+	
 	public String getContentId(NodeRef nodeRef) {
 		String contentId = (String) nodeService.getProperty(nodeRef, PortableContentConstants.PROP_CONTENT_ID);
 		if (contentId == null) {
@@ -151,10 +192,20 @@ public class PortableContentComponent extends AbstractLifecycleBean {
 	}
 	
 	public void fileWispDocument(NodeRef nodeRef) {
+		
+		//Skip any of this if custom contentId starts with IMPORTED_ as this is a doc that has been been imported and matches an existing doc.  It has already been processed.
+		
+		String contentId = (String) getContentId(nodeRef);
+		if (contentId.startsWith("IMPORTED_")) {
+			return;
+		}
+		
+		
 		String documentName = (String) nodeService.getProperty(nodeRef, PortableContentConstants.PROP_DOCUMENT_NAME);
 		String documentType = (String) nodeService.getProperty(nodeRef, PortableContentConstants.PROP_DOCUMENT_TYPE);
 		String timestamp = (String) nodeService.getProperty(nodeRef, PortableContentConstants.PROP_TIMESTAMP);
 		String name = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
+		
 		if (documentName == null) { documentName = name; }
 		if (timestamp == null) { 
 			timestamp = dateFormat.format(new Date());
@@ -169,13 +220,59 @@ public class PortableContentComponent extends AbstractLifecycleBean {
 		if (documentType == null) {
 			throw new InvalidMetadata(nodeRef,"documentType cannot be null");
 		}
-		name = documentName + timestamp;
-		nodeService.setProperty(nodeRef, ContentModel.PROP_NAME, name);
+		
 		nodeService.setProperty(nodeRef, PortableContentConstants.PROP_DOCUMENT_NAME, documentName);
 		nodeService.setProperty(nodeRef, PortableContentConstants.PROP_DOCUMENT_TYPE, documentType);
 		nodeService.setProperty(nodeRef, PortableContentConstants.PROP_TIMESTAMP, timestamp);
+		
+		
+		//Find existing docs with ContentID
+		//If more than one then throw error
+		
+		NodeRef existingNodeRef = getExistingByContentId(contentId, nodeRef);
+		
+		if (existingNodeRef != null) {
+			log.info("XXXXXXXXXX  portable content Exising node is not NULL" + existingNodeRef.toString());
+			
+			//get new properties
+			ContentData contentUrl = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
+			
+			String modifier = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIER);
+			String title = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_TITLE);
+			String description = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_DESCRIPTION);
+			
+			nodeService.setProperty(existingNodeRef, ContentModel.PROP_CONTENT, contentUrl);
+				
+			nodeService.setProperty(existingNodeRef, ContentModel.PROP_AUTO_VERSION_PROPS, true);
+			nodeService.setProperty(existingNodeRef, ContentModel.PROP_CONTENT, contentUrl);
+			nodeService.setProperty(existingNodeRef, ContentModel.PROP_NAME, name);
+			nodeService.setProperty(existingNodeRef, PortableContentConstants.PROP_DOCUMENT_NAME, documentName);
+			nodeService.setProperty(existingNodeRef, PortableContentConstants.PROP_DOCUMENT_TYPE, documentType);
+			nodeService.setProperty(existingNodeRef, PortableContentConstants.PROP_TIMESTAMP, timestamp);
+			
+			nodeService.setProperty(existingNodeRef, ContentModel.PROP_MODIFIER, modifier);
+			nodeService.setProperty(existingNodeRef, ContentModel.PROP_TITLE, title);
+			nodeService.setProperty(existingNodeRef, ContentModel.PROP_DESCRIPTION, description);
+			
+			nodeService.setProperty(existingNodeRef, ContentModel.PROP_MODIFIED, 
+					nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED));
+			
+			//now set custom content ID in new doc
+			String newStamp = dateFormat.format(new Date());
+			
+			String newContentID = "IMPORTED_" + newStamp + "_" +contentId;
+			nodeService.setProperty(nodeRef, PortableContentConstants.PROP_CONTENT_ID, newContentID);
+			
+			
+		} else {
+			
+			name = documentName + timestamp;
+			nodeService.setProperty(nodeRef, ContentModel.PROP_NAME, name);
+				
 		nodeService.moveNode(nodeRef, getWispFolder(documentType,timestamp), ContentModel.ASSOC_CONTAINS, QName.createQName(PortableContentConstants.WFPC_MODEL_1_0_URI, name));
+		}
 	}
+		
 	
 	public void setContentId(NodeRef nodeRef, String contentId) {
 		Serializable oldValue = nodeService.getProperty(nodeRef, PortableContentConstants.PROP_CONTENT_ID);
